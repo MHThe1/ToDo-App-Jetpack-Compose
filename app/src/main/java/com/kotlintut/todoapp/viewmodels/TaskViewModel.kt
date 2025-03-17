@@ -16,6 +16,10 @@ class TaskViewModel: ViewModel() {
         }
     }
 
+    fun addTask(task: Task) {
+        repo.addTask(task)
+    }
+
 
     fun remove(task: Task) {
         repo.removeTask(task)

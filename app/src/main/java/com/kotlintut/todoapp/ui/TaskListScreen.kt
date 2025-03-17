@@ -17,12 +17,17 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,6 +39,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kotlintut.todoapp.ui.components.TaskInputDialog
 import com.kotlintut.todoapp.ui.components.TaskItem
 import com.kotlintut.todoapp.viewmodels.TaskViewModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun TaskListScreen(
@@ -43,7 +49,11 @@ fun TaskListScreen(
 
     var showDialog by remember { mutableStateOf(false) }
 
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
+
     Scaffold (
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { showDialog = true },
@@ -88,7 +98,20 @@ fun TaskListScreen(
                     TaskItem(
                         task = task,
                         onToggleCompletion = {taskViewModel.toggleTaskCompletion(it)},
-                        onDelete = { taskViewModel.remove(it)}
+                        onDelete = {
+                            taskViewModel.remove(it)
+
+                            coroutineScope.launch {
+                                val result = snackbarHostState.showSnackbar(
+                                    message = "Your todo is deleted",
+                                    actionLabel = "Undo",
+                                    duration = SnackbarDuration.Short
+                                )
+                                if (result == SnackbarResult.ActionPerformed) {
+                                    taskViewModel.addTask(it)
+                                }
+                            }
+                        }
                     )
                 }
             }
