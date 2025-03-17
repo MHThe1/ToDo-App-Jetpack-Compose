@@ -1,5 +1,6 @@
 package com.kotlintut.todoapp.ui
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,6 +32,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
@@ -52,10 +54,16 @@ fun TaskListScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
+    val fabScale by animateFloatAsState(
+        targetValue = if(tasks.isEmpty()) 1.2f else 1f,
+        label = "FAB scale animation"
+    )
+
     Scaffold (
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         floatingActionButton = {
             FloatingActionButton(
+                modifier = Modifier.scale(fabScale),
                 onClick = { showDialog = true },
                 content = {
                     Icon(Icons.Default.Add, contentDescription = "Add ToDo")
