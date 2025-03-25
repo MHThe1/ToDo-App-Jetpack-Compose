@@ -26,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -38,6 +39,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.kotlintut.todoapp.data.Task
 import com.kotlintut.todoapp.ui.components.TaskInputDialog
 import com.kotlintut.todoapp.ui.components.TaskItem
 import com.kotlintut.todoapp.viewmodels.TaskViewModel
@@ -47,7 +49,7 @@ import kotlinx.coroutines.launch
 fun TaskListScreen(
     taskViewModel: TaskViewModel = viewModel()
 ) {
-    val tasks by taskViewModel.tasks.collectAsState()
+    val tasks by taskViewModel.getTasks().observeAsState(emptyList())
 
     var showDialog by remember { mutableStateOf(false) }
 
@@ -130,7 +132,7 @@ fun TaskListScreen(
         TaskInputDialog(
             onDismiss = {showDialog = false},
             onConfirm = {
-                taskViewModel.addTask(it)
+                taskViewModel.addTask(Task(title = it))
                 showDialog = false
             }
         )

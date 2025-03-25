@@ -1,24 +1,22 @@
 package com.kotlintut.todoapp.data.repo
 
+import androidx.lifecycle.LiveData
 import com.kotlintut.todoapp.data.Task
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import com.kotlintut.todoapp.data.dao.TaskDao
 
-class TaskRepo {
-    private val _tasks = MutableStateFlow<List<Task>>(emptyList())
-    val tasks: StateFlow<List<Task>> = _tasks
+class TaskRepo(private val taskDao: TaskDao) {
 
-    fun addTask(task: Task) {
-        _tasks.value += task
+    val getAllTodo: LiveData<List<Task>> = taskDao.getAllTodo()
+
+    suspend fun addTask(task: Task) {
+       taskDao.addTodo(task)
     }
 
-    fun removeTask(task: Task) {
-        _tasks.value -= task
+    suspend fun removeTask(task: Task) {
+        taskDao.deleteTodo(task.id)
     }
 
-    fun toggleTaskCompletion(task: Task) {
-        _tasks.value = _tasks.value.map {
-            if (it.id == task.id) it.copy(isCompleted = !it.isCompleted) else it
-        }
+    suspend fun toggleTaskCompletion(task: Task) {
+        taskDao.toggleTodoCompletion(task.id)
     }
 }
